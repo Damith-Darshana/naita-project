@@ -13,17 +13,14 @@ class TrainingCenterSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     category = CourseCategorySerializer(read_only=True)
-    requirements = serializers.SerializerMethodField()
-
+    duration_display = serializers.SerializerMethodField()
     
     class Meta:
         model = Course
         fields = '__all__'
     
-    def get_requirements(self,obj):
-        if obj.requirements:
-            return [req.strip() for req in obj.requirements.split('\n') if req.strip()]
-        return []
+    def get_duration_display(self, obj):
+        return obj.get_duration_display()
 
 class CourseOfferingSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)

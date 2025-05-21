@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--output',
+            '-output',
             type=str,
             default='course_report.csv',
             help='Output file path'
@@ -16,29 +16,31 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         output_path = options['output']
-        
         with open(output_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([
-                'Course Code', 'Course Title', 'Category', 
-                'Duration', 'Fee', 'Upcoming Offerings'
+                'Course Code', 'Course Title', 'Category',
+                'Duration', 'Fee', 'Description', 'Certification',
+                'Upcoming Offerings'
             ])
-            
+
             for course in Course.objects.filter(is_active=True):
                 upcoming = CourseOffering.objects.filter(
                     course=course,
                     start_date__gte=date.today()
                 ).count()
-                
+
                 writer.writerow([
                     course.code,
                     course.title,
                     course.category.name if course.category else '',
                     f"{course.duration} {course.duration_unit}",
                     course.fee,
+                    course.description[:100] + '...' if course.description else '',  # Truncate long description
+                    course.certification,
                     upcoming
                 ])
-        
+
         self.stdout.write(self.style.SUCCESS(
             f"Successfully generated report at {output_path}"
         ))

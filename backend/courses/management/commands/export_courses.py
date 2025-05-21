@@ -8,15 +8,24 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open('courses_export.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Code', 'Title', 'Category', 'Duration', 'Fee'])
+            # Updated header with new fields
+            writer.writerow([
+                'Code', 'Title', 'Category', 'Duration', 'Fee',
+                'Description', 'Prerequisites', 'Learning Outcomes',
+                'Certification', 'Is Active'
+            ])
             
             for course in Course.objects.all():
                 writer.writerow([
                     course.code,
                     course.title,
                     course.category.name if course.category else '',
-                    f"{course.duration} {course.duration_unit}",
-                    course.fee
+                    f'{course.duration} {course.duration_unit}',
+                    course.fee,
+                    course.description,
+                    course.prerequisites,
+                    course.learning_outcomes,
+                    course.certification,
+                    course.is_active
                 ])
-        
         self.stdout.write(self.style.SUCCESS('Successfully exported courses to CSV'))

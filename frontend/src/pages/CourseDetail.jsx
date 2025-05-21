@@ -13,7 +13,15 @@ export default function CourseDetail() {
     const fetchCourse = async () => {
       try {
         const courseData = await getCourseDetails(id);
-        setCourse(courseData);
+        // Ensure JSON fields are properly initialized if null
+        const processedCourse = {
+          ...courseData,
+          districts: courseData.districts || [],
+          features: courseData.features || [],
+          content: courseData.content || [],
+          requirements: courseData.requirements || []
+        };
+        setCourse(processedCourse);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -28,15 +36,19 @@ export default function CourseDetail() {
   if (error) return <div className="text-center py-12 text-red-500">Error: {error}</div>;
   if (!course) return <div className="text-center py-12">Course not found</div>;
 
+  // Format duration display
+  const durationDisplay = `${course.duration} ${course.duration_unit}`;
+
   return (
     <div className="relative">
       {/* Hero Section with Background Image */}
       <div 
         className="w-full h-[860px] bg-cover bg-center"
-        style={{ backgroundImage: "url('/course-detail-bg.jpg')" }}
+        // style={{ backgroundImage: "url('/course-detail-bg.jpg')" }}
       >
+        <img src={course.background_image} className="w-full h-[860px] bg-cover bg-center"  />
         {/* Course Info Card */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+        <div className="absolute top-20 left-2 transform -translate-x-1/2 translate-y-1/2">
           <div className="w-[1632px] h-[524px] bg-white rounded-xl shadow-lg p-12">
             {/* Course Title */}
             <h1 className="text-5xl font-bold text-gray-900 mb-6">
@@ -52,11 +64,11 @@ export default function CourseDetail() {
             <div className="flex items-center gap-8 mb-8">
               <div className="flex items-center">
                 <Clock size={15} className="text-red-800 mr-2"/>
-                <span className="text-xl text-gray-700">Duration - {course.duration}</span>
+                <span className="text-xl text-gray-700">Duration - {durationDisplay}</span>
               </div>
               <div className="flex items-center">
                 <Award size={15} className="text-red-800 mr-2"/>
-                <span className="text-xl text-gray-700">{course.certification}</span>
+                <span className="text-xl text-gray-700">{course.certification || 'No certification specified'}</span>
               </div>
             </div>
 
@@ -76,51 +88,61 @@ export default function CourseDetail() {
           {/* Left Content */}
           <div className="flex-1 pr-8">
             {/* Available Districts */}
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Available Districts</h2>
-              <ul className="list-disc pl-6 space-y-2">
-                {course.districts?.map((district, index) => (
-                  <li key={index} className="text-xl text-gray-700">{district}</li>
-                ))}
-              </ul>
-            </div>
+            {course.districts.length > 0 && (
+              <div className="mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Available Districts</h2>
+                <ul className="list-disc pl-6 space-y-2">
+                  {course.districts.map((district, index) => (
+                    <li key={index} className="text-xl text-gray-700">{district}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Features */}
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Features</h2>
-              <ul className="space-y-4">
-                {course.features?.map((feature, index) => (
-                  <li key={index} className="text-xl text-gray-700">{feature}</li>
-                ))}
-              </ul>
-            </div>
+            {course.features.length > 0 && (
+              <div className="mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Features</h2>
+                <ul className="space-y-4">
+                  {course.features.map((feature, index) => (
+                    <li key={index} className="text-xl text-gray-700">{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Course Content */}
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Course Content</h2>
-              <div className="space-y-8">
-                {course.content?.map((section, index) => (
-                  <div key={index}>
-                    <h3 className="text-2xl font-semibold text-gray-800 mb-4">{section.title}</h3>
-                    <ul className="list-disc pl-6 space-y-2">
-                      {section.topics?.map((topic, i) => (
-                        <li key={i} className="text-xl text-gray-700">{topic}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+            {course.content.length > 0 && (
+              <div className="mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Course Content</h2>
+                <div className="space-y-8">
+                  {course.content.map((section, index) => (
+                    <div key={index}>
+                      <h3 className="text-2xl font-semibold text-gray-800 mb-4">{section.title}</h3>
+                      {section.topics && section.topics.length > 0 && (
+                        <ul className="list-disc pl-6 space-y-2">
+                          {section.topics.map((topic, i) => (
+                            <li key={i} className="text-xl text-gray-700">{topic}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Entry Qualifications */}
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Entry Qualifications</h2>
-              <ul className="space-y-4">
-                {course.requirements?.map((requirement, index) => (
-                  <li key={index} className="text-xl text-gray-700">{requirement}</li>
-                ))}
-              </ul>
-            </div>
+            {course.requirements.length > 0 && (
+              <div className="mb-16">
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">Entry Qualifications</h2>
+                <ul className="space-y-4">
+                  {course.requirements.map((requirement, index) => (
+                    <li key={index} className="text-xl text-gray-700">{requirement}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Right Side - Course Fee Card */}
@@ -131,7 +153,7 @@ export default function CourseDetail() {
                 {course.fee?.toLocaleString()} LKR
               </p>
               <p className="text-xl font-bold text-gray-600">
-                Registration Fee: {course.registration_fee || 'Included'}
+                Registration Fee: {course.registration_fee ? `${course.registration_fee.toLocaleString()} LKR` : 'Included'}
               </p>
             </div>
           </div>
