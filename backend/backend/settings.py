@@ -45,9 +45,13 @@ INSTALLED_APPS = [
     'courses',
     'users',
     'enrollments',
+    'news',
     ##
     'drf_yasg',
     'django_filters',
+
+    ##
+    "django_json_widget",
 ]
 
 
@@ -129,7 +133,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+
+# Serve media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 STATIC_URL = 'static/'
+
+#gemini
+STATIC_ROOT = BASE_DIR / 'staticfiles' # This is where 'collectstatic' will put files
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

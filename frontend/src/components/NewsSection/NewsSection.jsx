@@ -1,144 +1,135 @@
 import { useState, useEffect } from 'react';
-import { ChevronRight } from 'react-feather';
+import API from '../../services/api';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+import NewsCard from './NewsCard';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 export default function NewsSection() {
-  const [activeTab, setActiveTab] = useState('Announcements');
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [activeTab, setActiveTab] = useState('AN');
+  const [newsPosts, setNewsPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock news data - replace with real data from your backend
-  const newsData = {
-    Announcements: Array(5).fill().map((_, i) => ({
-      id: `announce-${i}`,
-      title: `Important Announcement ${i + 1}`,
-      description: `This is a detailed description of the announcement ${i + 1}. It contains important information that all students should be aware of regarding upcoming changes.`,
-      image: '/images/news-announcement.jpg',
-      author: {
-        name: 'NAITA Admin',
-        avatar: '/images/admin-avatar.jpg',
-        posted: `${i + 1} hours ago`
-      },
-      date: `December ${11 + i}, 2024`
-    })),
-    News: Array(5).fill().map((_, i) => ({
-      id: `news-${i}`,
-      title: `Latest News Update ${i + 1}`,
-      description: `This news update covers recent developments in vocational training programs. Stay informed about the latest opportunities available through NAITA.`,
-      image: '/images/news-update.jpg',
-      author: {
-        name: 'News Editor',
-        avatar: '/images/editor-avatar.jpg',
-        posted: `${i + 2} hours ago`
-      },
-      date: `December ${12 + i}, 2024`
-    })),
-    LatestNews: Array(5).fill().map((_, i) => ({
-      id: `latest-${i}`,
-      title: `Breaking News ${i + 1}`,
-      description: `Breaking news about immediate opportunities or urgent notifications for all NAITA students and applicants.`,
-      image: '/images/breaking-news.jpg',
-      author: {
-        name: 'NAITA Reporter',
-        avatar: '/images/reporter-avatar.jpg',
-        posted: `${i} hours ago`
-      },
-      date: `December ${10 + i}, 2024`
-    }))
-  };
-
-  // Auto-slide functionality
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % newsData[activeTab].length);
-    }, 5000); // Change slide every 5 seconds
+    const fetchNews = async () => {
+      try {
+        const response = await API.get(`news/posts/?post_type=${activeTab}`);
+        setNewsPosts(response.data.results);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    return () => clearInterval(interval);
-  }, [activeTab, newsData]);
+    fetchNews();
+  }, [activeTab]);
 
-  return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        {/* Section Title */}
-        <h2 className="text-[28px] font-semibold text-black mb-8">News and Updates</h2>
-        
-        {/* Tab Buttons */}
-        <div className="flex gap-4 mb-12">
-          {['Announcements', 'News', 'LatestNews'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                setCurrentSlide(0); // Reset to first slide when changing tab
-              }}
-              className={`w-[250px] h-[58px] rounded-[8px] text-[18px] font-medium transition
-                ${activeTab === tab 
-                  ? 'bg-[#87212E] text-white' 
-                  : 'bg-[#333333] text-black hover:bg-[#444444]'
-                }`}
-            >
-              {tab.replace(/([A-Z])/g, ' $1').trim()} {/* Convert camelCase to normal text */}
-            </button>
+  if (loading) {
+    return (
+      <div className="mx-4 mt-10">
+        <h1 className="text-base font-bold text-gray-900 lg:text-2xl">News and Updates</h1>
+        <div className="grid grid-cols-2 gap-2 mt-5 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-sm shadow-sm p-4 h-64 animate-pulse">
+              <div className="h-32 bg-gray-200 rounded-sm mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-full mb-1"></div>
+              <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+            </div>
           ))}
         </div>
-        
-        {/* News Carousel */}
-        <div className="relative overflow-hidden h-[700px]">
-          <div 
-            className="flex transition-transform duration-1000 ease-linear"
-            style={{
-              transform: `translateX(-${currentSlide * (384 + 23)}px)`,
-              gap: '23px'
-            }}
-          >
-            {newsData[activeTab].map((news) => (
-              <div 
-                key={news.id}
-                className="flex-shrink-0 w-[384px] h-[611px] rounded-[2px] shadow-md overflow-hidden bg-white"
-              >
-                {/* News Image */}
-                <div className="w-[384px] h-[302px] overflow-hidden">
-                  <img 
-                    src={news.image} 
-                    alt={news.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                {/* News Content */}
-                <div className="p-6">
-                  {/* Author Info */}
-                  <div className="flex items-center mb-4">
-                    <img 
-                      src={news.author.avatar} 
-                      alt={news.author.name}
-                      className="w-[25px] h-[25px] rounded-full mr-2"
-                    />
-                    <span className="text-[18px] font-bold mr-2">{news.author.name}</span>
-                    <span className="text-[16px] text-[#676767]">• {news.author.posted}</span>
-                  </div>
-                  
-                  {/* News Title */}
-                  <h3 className="text-[18px] font-bold text-black mb-3">{news.title}</h3>
-                  
-                  {/* News Description */}
-                  <p className="text-[18px] text-[#676767] mb-6 line-clamp-3">
-                    {news.description}
-                  </p>
-                  
-                  {/* Read More Link */}
-                  <a href="#" className="text-[#87212E] text-[18px] font-medium flex items-center mb-3">
-                    Read more <ChevronRight size={18} className="ml-1" />
-                  </a>
-                  
-                  {/* News Date */}
-                  <p className="text-[14px] text-[#676767] font-medium">
-                    {news.date}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
-    </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-4 mt-10">
+        <h1 className="text-base font-bold text-gray-900 lg:text-2xl">News and Updates</h1>
+        <div className="text-red-600">Error loading news: {error}</div>
+      </div>
+    );
+  }
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  return (
+    <div className="mx-4 mt-10 mb-10">
+      <h1 className="text-base font-bold text-gray-900 lg:text-2xl">News and Updates</h1>
+      
+      <div className="links flex flex-row gap-x-2 text-sm text-gray-600 font-semibold py-2 pl-10 lg:text-base lg:gap-x-4 my-10">
+        {[
+          { value: 'NW', label: 'News' },
+          { value: 'AN', label: 'Announcements' },
+          { value: 'UP', label: 'Latest News' }
+        ].map((tab) => (
+          <button
+            key={tab.value}
+            onClick={() => setActiveTab(tab.value)}
+            className={` lg:p-3 lg:rounded-sm lg:shadow-sm lg:w-38 text-center  ${
+              activeTab === tab.value ? ' lg:bg-red-800  lg:text-white' : 'lg:bg-white  lg:hover:bg-red-300/25 lg:hover:text-red-800 '
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="swiper mySwiper w-full max-w-[600px] mx-auto lg:max-w-full lg:mx-4">
+        <Swiper
+          slidesPerView={2}
+          spaceBetween={10}
+          pagination={{
+            clickable: true,
+            el: '.swiper-pagination',
+            type: 'bullets',
+          }}
+          autoplay={{
+            delay: 5000,
+            disableOnInteraction: false,
+          }}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 20,
+            },
+          }}
+          modules={[Pagination, Autoplay]}
+          className="mySwiper bg-red-300 "
+        >
+          {newsPosts.map((post) => (
+            <SwiperSlide key={post.id}>
+              <NewsCard
+                title={post.title}
+                description={post.description}
+                imageUrl={post.image_url}
+                category={post.category?.name}
+                author={{
+                  name: post.author?.first_name 
+                    ? `${post.author.first_name} ${post.author.last_name}` 
+                    : 'NAITA Admin',
+                  first_name: post.author?.first_name,
+                  last_name: post.author?.last_name,
+                  avatar: post.author?.avatar
+                }}
+                date={formatDate(post.created_at)}
+                className="w-[180px] lg:w-full"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+        <div className="swiper-pagination relative mt-7 text-center"></div>
+      </div>
+    </div>
   );
 }

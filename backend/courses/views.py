@@ -2,9 +2,17 @@ from django.shortcuts import render
 
 # Create your views here.
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets,filters
-from .models import CourseCategory, TrainingCenter, Course, CourseOffering
-from .serializers import CourseCategorySerializer, TrainingCenterSerializer, CourseSerializer, CourseOfferingSerializer
+from rest_framework import viewsets,filters, generics
+from .models import CourseCategory, TrainingCenter, Course, CourseOffering , HeroContent,Service,DashboardStat
+from .serializers import (
+    CourseCategorySerializer, 
+    TrainingCenterSerializer, 
+    CourseSerializer, 
+    CourseOfferingSerializer, 
+    HeroContentSerializer,
+    ServiceSerializer, 
+    DashboardStatSerializer
+    )
 
 class CourseCategoryViewSet(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
@@ -35,3 +43,21 @@ class CourseOfferingViewSet(viewsets.ModelViewSet):
         'center': ['exact'],
         'start_date': ['gte', 'lte', 'exact'],
     }
+
+class HeroContentView(generics.RetrieveAPIView):
+    serializer_class = HeroContentSerializer
+
+    def get_object(self):
+        return HeroContent.objects.filter(is_active=True).first()
+    
+
+class ServiceListView(generics.ListAPIView):
+    serializer_class = ServiceSerializer
+    queryset = Service.objects.filter(is_active=True).order_by('display_order')
+
+class DashboardStatView(generics.RetrieveAPIView):
+    serializer_class = DashboardStatSerializer
+    
+    def get_object(self):
+        return DashboardStat.objects.filter(is_active=True).first()
+

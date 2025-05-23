@@ -3,40 +3,40 @@ import PropTypes from 'prop-types';
 
 export default function CourseCard({ id, title, category, duration, fee, thumbnail }) {
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow h-full flex flex-col">
-      <div className="h-48 bg-gray-100 flex items-center justify-center">
-        {thumbnail ? (
+    <div className="bg-white rounded-sm shadow-sm p-2 hover:shadow-md transition-shadow lg:rounded-md">
+      {/* Image */}
+      <div className="bg-[url(Apprenticeship-Training.jpg)] bg-cover w-full h-[145px] rounded-sm lg:h-[360px]">
+        {thumbnail && (
           <img 
             src={thumbnail} 
-            alt={title} 
-            className="w-full h-full object-cover" 
+            alt={title}
+            className="w-full h-full object-cover rounded-sm lg:rounded-md"
           />
-        ) : (
-          <span className="text-5xl">
-            {category === 'Engineering' ? '⚙️' :
-             category === 'IT' ? '💻' : '📚'}
-          </span>
         )}
       </div>
-      
-      <div className="p-6 flex-grow flex flex-col">
-        <span className="inline-block px-3 py-1 bg-naita-blue-light text-naita-blue rounded-full text-sm font-medium mb-3 self-start">
-          {category}
+
+      {/* Category */}
+      <div className="flex items-center gap-x-2 py-2">
+        <div className="bg-red-800 rounded-full w-[5px] h-[5px] lg:w-[10px] lg:h-[10px]"></div>
+        <div className="text-xs text-gray-600 lg:text-base">{category}</div>
+      </div>
+
+      {/* Title */}
+      <h3 className="text-base font-semibold text-gray-900 line-clamp-2 lg:text-xl">
+        {title}
+      </h3>
+
+      {/* Duration and Price */}
+      <div className="flex justify-between items-center pt-2">
+        <span className="text-xs text-gray-600 lg:text-base">{duration}</span>
+        <span className="text-xs font-bold text-gray-800 lg:text-base">
+          LKR {fee?.toLocaleString()}
         </span>
-        <h3 className="text-xl font-semibold text-gray-800 mb-3">{title}</h3>
-        
-        <div className="mt-auto">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-gray-600">{duration}</span>
-            <span className="font-bold text-naita-blue">LKR {fee?.toLocaleString()}</span>
-          </div>
-          <Link
-            to={`/courses/${id}`}
-            className="block w-full py-2 bg-naita-blue text-white text-center rounded-md hover:bg-naita-blue-dark transition"
-          >
-            View Details
-          </Link>
-        </div>
+      </div>
+
+      {/* View More */}
+      <div className="text-sm text-red-800 pt-2 font-semibold lg:text-base lg:pb-5">
+        <Link to={`/courses/${id}`}>view more &gt;</Link>
       </div>
     </div>
   );

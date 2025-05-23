@@ -84,3 +84,59 @@ class CourseOffering(models.Model):
     
     def __str__(self):
         return f"{self.course.title} at {self.center.name}"
+
+
+
+class HeroContent(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    button_text = models.CharField(max_length=50, default="Register Now")
+    background_image = models.ImageField(upload_to='hero_images/')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title  
+
+
+# models.py
+# courses/models.py
+
+
+class Service(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    icon_name = models.CharField(max_length=50, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['display_order']
+
+    def __str__(self):
+        return self.title
+
+class DashboardStat(models.Model):
+    active_learners = models.PositiveIntegerField(default=0)
+    total_courses = models.PositiveIntegerField(default=0)
+    proud_graduates = models.PositiveIntegerField(default=0)
+    current_year = models.PositiveIntegerField()
+    last_updated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Dashboard Statistics"
+        verbose_name_plural = "Dashboard Statistics"
+
+    def __str__(self):
+        return f"Stats for {self.current_year}"
+
+class PopularCourse(models.Model):
+    name = models.CharField(max_length=100)
+    percentage = models.PositiveIntegerField()
+    year = models.PositiveIntegerField()
+    stats = models.ForeignKey(DashboardStat, on_delete=models.CASCADE, related_name='popular_courses')
+
+    def __str__(self):
+        return f"{self.name} ({self.year})"

@@ -1,5 +1,14 @@
 from rest_framework import serializers
-from .models import CourseCategory, TrainingCenter, Course, CourseOffering
+from .models import (
+    CourseCategory, 
+    TrainingCenter, 
+    Course, 
+    CourseOffering, 
+    HeroContent,
+    Service, 
+    PopularCourse,
+    DashboardStat,
+    )
 
 class CourseCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +38,32 @@ class CourseOfferingSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseOffering
         fields = '__all__'
+
+class HeroContentSerializer(serializers.ModelSerializer):
+    background_image = serializers.SerializerMethodField()
+
+    def get_background_image(self, obj):
+        if obj.background_image:
+            return self.context['request'].build_absolute_uri(obj.background_image.url)
+        return None
+
+    class Meta:
+        model = HeroContent
+        fields = '__all__'
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['id', 'title', 'description', 'icon_name', 'display_order']
+
+class PopularCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PopularCourse
+        fields = ['name', 'percentage']
+
+class DashboardStatSerializer(serializers.ModelSerializer):
+    popular_courses = PopularCourseSerializer(many=True)
+    
+    class Meta:
+        model = DashboardStat
+        fields = ['active_learners', 'total_courses', 'proud_graduates', 'current_year', 'popular_courses']
